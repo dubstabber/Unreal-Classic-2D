@@ -7,7 +7,6 @@ extends Node2D
 const PAWN_SCENE := preload("res://scenes/pawn/pawn.tscn")
 const SHOCK_RIFLE_DATA := preload("res://resources/weapons/shock_rifle.tres")
 const ROCKET_LAUNCHER_DATA := preload("res://resources/weapons/rocket_launcher.tres")
-const IMPACT_HAMMER_DATA := preload("res://resources/weapons/impact_hammer.tres")
 const ENFORCER_DATA := preload("res://resources/weapons/enforcer.tres")
 const BIO_RIFLE_DATA := preload("res://resources/weapons/bio_rifle.tres")
 const FLAK_CANNON_DATA := preload("res://resources/weapons/flak_cannon.tres")
@@ -97,18 +96,13 @@ func _spawn_dummy() -> void:
 	_dummy.damaged.connect(_on_dummy_damaged)
 	_dummy.died.connect(_on_dummy_died)
 	# Visual tint to distinguish dummy from player
-	for spr in [_dummy.get_node_or_null("Visual/Body"), _dummy.get_node_or_null("Visual/Head"), _dummy.get_node_or_null("Visual/Arm")]:
-		if spr != null:
-			spr.modulate = Color(1.0, 0.65, 0.65, 1.0)
+	_dummy.set_team_color(Color(1.0, 0.65, 0.65, 1.0))
 
 func _give_player_shock_rifle() -> void:
 	_ensure_weapon(ShockRifle, SHOCK_RIFLE_DATA)
 
 func _give_player_rocket_launcher() -> void:
 	_ensure_weapon(RocketLauncher, ROCKET_LAUNCHER_DATA)
-
-func _give_player_impact_hammer() -> void:
-	_ensure_weapon(ImpactHammer, IMPACT_HAMMER_DATA)
 
 func _give_player_enforcer() -> void:
 	_ensure_weapon(Enforcer, ENFORCER_DATA)
@@ -123,7 +117,6 @@ func _give_player_sniper_rifle() -> void:
 	_ensure_weapon(SniperRifle, SNIPER_RIFLE_DATA)
 
 func _give_all_weapons() -> void:
-	_give_player_impact_hammer()
 	_give_player_enforcer()
 	_give_player_bio_rifle()
 	_give_player_shock_rifle()
@@ -133,7 +126,6 @@ func _give_all_weapons() -> void:
 
 func _equip_full_kit(target: Pawn) -> void:
 	var w: Weapon
-	w = ImpactHammer.new(); w.data = IMPACT_HAMMER_DATA; target.equip_weapon(w)
 	w = Enforcer.new(); w.data = ENFORCER_DATA; target.equip_weapon(w)
 	w = BioRifle.new(); w.data = BIO_RIFLE_DATA; target.equip_weapon(w)
 	w = ShockRifle.new(); w.data = SHOCK_RIFLE_DATA; target.equip_weapon(w)
@@ -197,9 +189,7 @@ func _spawn_bot() -> void:
 	_bot.id = &"bot"
 	_bot.display_name = "Bot"
 	add_child(_bot)
-	for spr in [_bot.get_node_or_null("Visual/Body"), _bot.get_node_or_null("Visual/Head")]:
-		if spr != null:
-			spr.modulate = Color(0.65, 0.65, 1.0, 1.0)
+	_bot.set_team_color(Color(0.65, 0.65, 1.0, 1.0))
 	var bc := BotController.new()
 	_bot.set_controller(bc)
 	bc.set_nav_graph(_nav_graph)
@@ -329,9 +319,8 @@ func _cmd_ammo(args: Array) -> Variant:
 	return "+%d %s" % [added, args[0]]
 
 func _cmd_give(args: Array) -> Variant:
-	if args.is_empty(): return "usage: give <weapon>  (hammer | enforcer | bio | shock | flak | rocket | sniper | all)"
+	if args.is_empty(): return "usage: give <weapon>  (enforcer | bio | shock | flak | rocket | sniper | all)"
 	match args[0]:
-		"hammer", "impact_hammer": _give_player_impact_hammer(); return "+Impact Hammer"
 		"enforcer": _give_player_enforcer(); return "+Enforcer"
 		"bio", "bio_rifle": _give_player_bio_rifle(); return "+Bio Rifle"
 		"shock", "shock_rifle": _give_player_shock_rifle(); return "+Shock Rifle"
@@ -509,8 +498,8 @@ func _selftest_weapons() -> void:
 	var orb: ShockOrb = orbs_now.back() as ShockOrb
 	_assert("orb is ShockOrb", orb != null)
 
-	# Let the orb fly close to the dummy (but not collide), then beam-on-orb combo.
-	await _wait_physics_frames(40)
+	# Let the orb fly toward the dummy (but not collide yet), then beam-on-orb combo.
+	await _wait_physics_frames(30)
 	_assert("orb in flight", orb != null and orb.is_inside_tree())
 	var orb_pos: Vector2 = orb.global_position
 	var dummy_hp_pre_combo: float = _dummy.health_component.health
@@ -522,7 +511,7 @@ func _selftest_weapons() -> void:
 	_assert("dummy hit by combo radial", _dummy.health_component.health < dummy_hp_pre_combo)
 
 	# Ammo consumption via wish_fire pipeline — make sure ShockRifle is current
-	# (otherwise the player's hammer would charge instead).
+	# (otherwise a different equipped weapon would fire instead).
 	_pawn.inventory.switch_to_slot(rifle.data.slot)
 	_dummy.respawn(DUMMY_POS)
 	_pawn.controller.aim_target = _dummy.global_position
@@ -628,35 +617,12 @@ func _selftest_phase5_weapons() -> void:
 	var weapons_by_class: Dictionary = {}
 	for w in _pawn.inventory.weapons:
 		weapons_by_class[w.get_script()] = w
-	_assert("ImpactHammer equipped", weapons_by_class.has(ImpactHammer))
 	_assert("Enforcer equipped", weapons_by_class.has(Enforcer))
 	_assert("BioRifle equipped", weapons_by_class.has(BioRifle))
 	_assert("ShockRifle equipped (still)", weapons_by_class.has(ShockRifle))
 	_assert("FlakCannon equipped", weapons_by_class.has(FlakCannon))
 	_assert("RocketLauncher equipped (still)", weapons_by_class.has(RocketLauncher))
 	_assert("SniperRifle equipped", weapons_by_class.has(SniperRifle))
-
-	# ---------- Impact Hammer ----------
-	var hammer: ImpactHammer = weapons_by_class[ImpactHammer]
-	pc.aim_target = _dummy.global_position
-	await _wait_physics_frames(1)
-	# Position right next to dummy so primary radial reaches it
-	_pawn.global_position = _dummy.global_position + Vector2(-22, 0)
-	await _wait_physics_frames(2)
-	var dummy_hp_before: float = _dummy.health_component.health
-	hammer.primary_fire_with_charge(1.0)  # full-charge hit
-	await _wait_physics_frames(2)
-	_assert("hammer primary damaged dummy at melee range", _dummy.health_component.health < dummy_hp_before)
-
-	# Hammer alt = hammer-jump: aim down, expect upward velocity
-	_pawn.respawn(SPAWN_POS)
-	await _wait_physics_frames(40)
-	_assert("hammer-jump pre-on-floor", _pawn.is_on_floor())
-	pc.aim_target = _pawn.global_position + Vector2(0, 60)  # aim down → push up
-	await _wait_physics_frames(1)
-	hammer.alt_fire()
-	await _wait_physics_frames(1)
-	_assert("hammer alt launched upward", _pawn.velocity.y < -200.0)
 
 	# ---------- Enforcer ----------
 	var enforcer: Enforcer = weapons_by_class[Enforcer]
@@ -667,7 +633,7 @@ func _selftest_phase5_weapons() -> void:
 	await _wait_physics_frames(40)
 	await _clear_projectiles()
 	_dummy.respawn(DUMMY_POS)
-	dummy_hp_before = _dummy.health_component.health
+	var dummy_hp_before: float = _dummy.health_component.health
 	enforcer.primary_fire()
 	await _wait_physics_frames(2)
 	_assert("enforcer primary damaged dummy", _dummy.health_component.health < dummy_hp_before)
@@ -875,10 +841,10 @@ func _selftest_bot_ai() -> void:
 	bc._select_state()
 	_assert("bot enters FIGHT state", bc.state == BotController.State.FIGHT)
 
-	# ---------- Combat: weapon preference by distance ----------
-	_assert("close range → hammer (slot 1)", bc.combat.pick_weapon_slot(20.0) == 1)
-	_assert("medium range → rocket (slot 9)", bc.combat.pick_weapon_slot(150.0) == 9)
-	_assert("far range → sniper (slot 0)", bc.combat.pick_weapon_slot(500.0) == 0)
+	# ---------- Combat: weapon preference by distance (Enforcer-only loadout) ----------
+	_assert("close range → enforcer (slot 2)", bc.combat.pick_weapon_slot(20.0) == 2)
+	_assert("medium range → enforcer (slot 2)", bc.combat.pick_weapon_slot(150.0) == 2)
+	_assert("far range → enforcer (slot 2)", bc.combat.pick_weapon_slot(500.0) == 2)
 
 	# ---------- Combat: reaction time gates firing ----------
 	bc.combat._last_target = null  # force re-acquire

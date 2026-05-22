@@ -24,9 +24,12 @@ func has_texture(name: StringName) -> bool:
 	return _textures.has(name)
 
 func _bake_all() -> void:
-	_textures[&"pawn_body"] = _bake_pawn_body()
-	_textures[&"pawn_head"] = _bake_pawn_head()
-	_textures[&"pawn_arm"] = _bake_pawn_arm()
+	_textures[&"pawn_torso"] = _bake_pawn_torso()
+	_textures[&"pawn_leg"] = _bake_pawn_leg()
+	_textures[&"pawn_head_side"] = _bake_pawn_head_side()
+	_textures[&"pawn_arm_front"] = _bake_pawn_arm_front()
+	_textures[&"pawn_arm_back"] = _bake_pawn_arm_back()
+	_textures[&"gun_enforcer"] = _bake_gun_enforcer()
 	_textures[&"tile_solid"] = _bake_tile_solid()
 	_textures[&"shock_orb"] = _bake_shock_orb()
 	_textures[&"muzzle_flash"] = _bake_muzzle_flash()
@@ -37,13 +40,11 @@ func _bake_all() -> void:
 	_textures[&"bio_pool"] = _bake_bio_pool()
 	_textures[&"flak_shard"] = _bake_flak_shard()
 	_textures[&"flak_grenade"] = _bake_flak_grenade()
-	_textures[&"hammer_burst"] = _bake_hammer_burst()
 	_textures[&"pickup_health"] = _bake_pickup_health()
 	_textures[&"pickup_health_mega"] = _bake_pickup_health_mega()
 	_textures[&"pickup_armor"] = _bake_pickup_armor()
 	_textures[&"pickup_ammo"] = _bake_pickup_ammo()
 	_textures[&"pickup_weapon_glow"] = _bake_pickup_weapon_glow()
-	_textures[&"icon_hammer"] = _bake_icon_hammer()
 	_textures[&"icon_enforcer"] = _bake_icon_enforcer()
 	_textures[&"icon_bio"] = _bake_icon_bio()
 	_textures[&"icon_shock"] = _bake_icon_shock()
@@ -57,50 +58,86 @@ func _c(name: StringName, fallback: Color = Color.MAGENTA) -> Color:
 
 # ---------- Recipes ----------
 
-func _bake_pawn_body() -> ImageTexture:
-	# 10w x 14h torso/legs. Facing right; X-flipped at runtime for facing left.
-	var c := PixelCanvas.new(10, 14)
+func _bake_pawn_torso() -> ImageTexture:
+	# 8x9 armored torso (no legs). Drawn facing right.
+	# Anchor (pivot) at (4, 9) — the hip joint at the bottom edge.
+	var c := PixelCanvas.new(8, 9)
 	var armor := _c(&"armor_mid", Color(0.30, 0.55, 0.85))
 	var armor_dark := _c(&"armor_dark", Color(0.18, 0.34, 0.55))
 	var armor_light := _c(&"armor_light", Color(0.55, 0.78, 1.0))
 	var outline := _c(&"outline", Color(0.05, 0.07, 0.12))
-	# torso block
-	c.fill_rect(2, 0, 6, 8, armor)
-	c.fill_rect(2, 0, 6, 2, armor_light)  # shoulder highlight
-	c.fill_rect(2, 6, 6, 2, armor_dark)   # belt shadow
-	# legs
-	c.fill_rect(2, 8, 2, 6, armor_dark)
-	c.fill_rect(6, 8, 2, 6, armor_dark)
-	c.fill_rect(2, 13, 3, 1, outline)
-	c.fill_rect(5, 13, 3, 1, outline)
-	# outline
-	c.outline_rect(1, -0, 8, 8, outline) # outline call clips at top
+	c.fill_rect(1, 0, 6, 9, armor)
+	c.fill_rect(1, 0, 6, 2, armor_light)  # chest/shoulder highlight
+	c.fill_rect(5, 2, 1, 5, armor_dark)   # front edge shading (right side)
+	c.fill_rect(1, 7, 6, 2, armor_dark)   # belt
+	c.outline_rect(1, 0, 6, 9, outline)
 	return c.texture()
 
-func _bake_pawn_head() -> ImageTexture:
+func _bake_pawn_leg() -> ImageTexture:
+	# 3x7 leg piece, reused for front and back. Anchor (pivot) at (1, 0) — hip, top-center.
+	var c := PixelCanvas.new(3, 7)
+	var armor_dark := _c(&"armor_dark", Color(0.18, 0.34, 0.55))
+	var metal_dark := _c(&"metal_dark", Color(0.30, 0.30, 0.36))
+	var outline := _c(&"outline", Color(0.05, 0.07, 0.12))
+	c.fill_rect(0, 0, 3, 6, armor_dark)  # thigh/shin
+	c.fill_rect(0, 6, 3, 1, metal_dark)  # boot
+	c.set_px(0, 0, outline)
+	c.set_px(2, 0, outline)
+	return c.texture()
+
+func _bake_pawn_head_side() -> ImageTexture:
+	# 8x8 side-profile head facing right (nose bump on +X, hair on top/back).
+	# Anchor (pivot) at (3, 7) — the neck, near the bottom.
 	var c := PixelCanvas.new(8, 8)
 	var skin := _c(&"skin", Color(0.95, 0.78, 0.62))
 	var skin_dark := _c(&"skin_dark", Color(0.70, 0.52, 0.38))
 	var hair := _c(&"hair", Color(0.22, 0.16, 0.10))
 	var outline := _c(&"outline", Color(0.05, 0.07, 0.12))
-	c.fill_rect(1, 2, 6, 5, skin)
-	c.fill_rect(1, 1, 6, 2, hair)
-	c.fill_rect(1, 5, 6, 1, skin_dark)
-	c.set_px(2, 3, outline)  # eye
-	c.set_px(5, 3, outline)  # eye
-	c.outline_rect(0, 1, 8, 7, outline)
+	c.fill_rect(1, 1, 5, 6, skin)        # face block (x 1..5)
+	c.fill_rect(1, 0, 5, 2, hair)        # hair on top
+	c.fill_rect(0, 1, 1, 4, hair)        # hair down the back (left = behind)
+	c.set_px(6, 3, skin)                 # nose bump (front)
+	c.set_px(6, 4, skin)
+	c.set_px(4, 3, outline)              # eye
+	c.fill_rect(1, 6, 5, 1, skin_dark)   # jaw shadow
+	c.outline_rect(1, 1, 5, 6, outline)
 	return c.texture()
 
-func _bake_pawn_arm() -> ImageTexture:
-	# 8x3 arm holding a weapon stub. Anchor at (1, 1) — shoulder. Tip at (7, 1) — barrel.
-	var c := PixelCanvas.new(8, 3)
+func _bake_pawn_arm_front() -> ImageTexture:
+	# 7x3 gun arm (forearm + hand), drawn pointing +X.
+	# Anchor (pivot) at (1, 1) — the shoulder. Hand at the +X end (x ~5).
+	var c := PixelCanvas.new(7, 3)
 	var armor := _c(&"armor_mid", Color(0.30, 0.55, 0.85))
+	var armor_dark := _c(&"armor_dark", Color(0.18, 0.34, 0.55))
+	var skin := _c(&"skin", Color(0.95, 0.78, 0.62))
+	c.fill_rect(0, 0, 5, 3, armor)       # upper/forearm
+	c.fill_rect(0, 2, 5, 1, armor_dark)  # underside shadow
+	c.fill_rect(5, 0, 2, 3, skin)        # hand/grip
+	return c.texture()
+
+func _bake_pawn_arm_back() -> ImageTexture:
+	# 6x3 support arm (rendered behind torso). Darker so it reads as "behind".
+	# Anchor (pivot) at (1, 1) — the shoulder.
+	var c := PixelCanvas.new(6, 3)
+	var armor_dark := _c(&"armor_dark", Color(0.18, 0.34, 0.55))
+	var skin_dark := _c(&"skin_dark", Color(0.70, 0.52, 0.38))
+	c.fill_rect(0, 0, 6, 3, armor_dark)
+	c.fill_rect(4, 0, 2, 2, skin_dark)   # back hand hint
+	return c.texture()
+
+func _bake_gun_enforcer() -> ImageTexture:
+	# 8x4 enforcer pistol pointing +X. Anchor (pivot) at (0, 2) — the grip in the hand.
+	# Muzzle tip at x ~7 (matches WeaponData.muzzle_offset_local.x).
+	var c := PixelCanvas.new(8, 4)
 	var metal := _c(&"metal", Color(0.55, 0.55, 0.62))
 	var metal_dark := _c(&"metal_dark", Color(0.30, 0.30, 0.36))
-	c.fill_rect(0, 0, 3, 3, armor)  # shoulder/upper arm
-	c.fill_rect(3, 0, 4, 2, metal)
-	c.fill_rect(3, 2, 4, 1, metal_dark)
-	c.set_px(7, 1, _c(&"plasma_hot", Color(1, 0.9, 0.4)))  # barrel tip glow
+	var outline := _c(&"outline", Color(0.05, 0.07, 0.12))
+	c.fill_rect(0, 1, 8, 2, metal)       # barrel/slide body
+	c.fill_rect(2, 0, 4, 1, metal)       # slide top
+	c.fill_rect(0, 2, 3, 2, metal_dark)  # grip
+	c.set_px(0, 0, metal_dark)           # hammer nub
+	c.set_px(7, 1, _c(&"plasma_hot", Color(1, 0.9, 0.4)))  # muzzle tip glow
+	c.set_px(7, 2, outline)
 	return c.texture()
 
 func _bake_shock_orb() -> ImageTexture:
@@ -244,19 +281,6 @@ func _bake_flak_grenade() -> ImageTexture:
 	c.set_px(3, 0, hot)
 	return c.texture()
 
-func _bake_hammer_burst() -> ImageTexture:
-	# 12x12 expanding hammer impact ring
-	var c := PixelCanvas.new(12, 12)
-	var white := _c(&"laser_white", Color(1, 1, 1, 1))
-	var blue := _c(&"laser_blue", Color(0.4, 0.85, 1, 1))
-	# Inner cross
-	c.fill_rect(5, 0, 2, 12, blue)
-	c.fill_rect(0, 5, 12, 2, blue)
-	# Bright center
-	c.fill_rect(4, 4, 4, 4, white)
-	c.fill_rect(5, 5, 2, 2, Color(1, 1, 1, 1))
-	return c.texture()
-
 func _bake_pickup_health() -> ImageTexture:
 	# 9x9 white box with green cross
 	var c := PixelCanvas.new(9, 9)
@@ -323,16 +347,6 @@ func _bake_pickup_weapon_glow() -> ImageTexture:
 	var blue := _c(&"laser_blue", Color(0.4, 0.85, 1, 1))
 	c.fill_rect(2, 1, 8, 2, blue)
 	c.fill_rect(0, 2, 12, 1, Color(blue.r, blue.g, blue.b, 0.5))
-	return c.texture()
-
-func _bake_icon_hammer() -> ImageTexture:
-	var c := PixelCanvas.new(12, 12)
-	var hot := _c(&"plasma_hot", Color(1, 0.9, 0.4, 1))
-	var metal := _c(&"metal", Color(0.55, 0.55, 0.62, 1))
-	c.fill_rect(4, 1, 4, 4, metal)
-	c.outline_rect(4, 1, 4, 4, _c(&"outline"))
-	c.fill_rect(5, 5, 2, 7, _c(&"metal_dark"))  # handle
-	c.set_px(5, 1, hot)
 	return c.texture()
 
 func _bake_icon_enforcer() -> ImageTexture:

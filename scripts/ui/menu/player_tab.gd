@@ -64,7 +64,7 @@ func _build_left() -> Control:
 	vb.add_child(grid)
 
 	_preview = TextureRect.new()
-	_preview.texture = SpriteBaker.get_texture(&"pawn_body")
+	_preview.texture = SpriteBaker.get_texture(&"pawn_torso")
 	_preview.custom_minimum_size = Vector2(48, 48)
 	_preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_preview.modulate = Profiles.player_color()

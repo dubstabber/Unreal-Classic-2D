@@ -48,12 +48,12 @@ func alt_fire() -> void: pass
 # ---------- Aiming helpers ----------
 
 func aim_origin() -> Vector2:
-	if pawn == null:
-		return Vector2.ZERO
-	var arm: Node2D = pawn.get_node_or_null("Visual/Arm") as Node2D
-	return arm.global_position if arm != null else pawn.global_position
+	# Front-arm shoulder pivot, provided by the pawn's rig.
+	return pawn.aim_pivot_global() if pawn != null else Vector2.ZERO
 
 func aim_direction() -> Vector2:
+	# Crosshair-relative (not derived from arm rotation) so aim stays exact and
+	# bot aim-error is preserved.
 	if pawn == null or pawn.controller == null:
 		return Vector2.RIGHT
 	var to: Vector2 = pawn.controller.aim_target - aim_origin()
@@ -62,5 +62,8 @@ func aim_direction() -> Vector2:
 	return to.normalized()
 
 func barrel_position() -> Vector2:
+	# Real muzzle marker (rides the rig: arm rotation, lean, and flip) when available.
+	if pawn != null and pawn.has_method(&"muzzle_global"):
+		return pawn.muzzle_global()
 	var off: float = data.muzzle_offset_local.x if data != null else 7.0
 	return aim_origin() + aim_direction() * off

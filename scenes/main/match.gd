@@ -7,13 +7,7 @@ const PAWN_SCENE := preload("res://scenes/pawn/pawn.tscn")
 const HUD_SCENE := preload("res://scenes/ui/hud.tscn")
 const RESULTS_PATH := "res://scenes/main/results.tscn"
 
-const SHOCK_DATA := preload("res://resources/weapons/shock_rifle.tres")
-const ROCKET_DATA := preload("res://resources/weapons/rocket_launcher.tres")
-const FLAK_DATA := preload("res://resources/weapons/flak_cannon.tres")
-const SNIPER_DATA := preload("res://resources/weapons/sniper_rifle.tres")
-const BIO_DATA := preload("res://resources/weapons/bio_rifle.tres")
 const ENFORCER_DATA := preload("res://resources/weapons/enforcer.tres")
-const HAMMER_DATA := preload("res://resources/weapons/impact_hammer.tres")
 
 ## Distinct tints so each bot is visually distinguishable (cycled by bot index).
 const BOT_TINTS: Array[Color] = [
@@ -78,11 +72,9 @@ func _spawn_player(at: Vector2) -> void:
 	_player.id = &"player"
 	_player.display_name = Profiles.player_name()
 	add_child(_player)
-	# Sprites are created in Pawn._ready() on tree entry, so tint after add_child.
+	# Rig is built in Pawn._ready() on tree entry, so tint after add_child.
 	var tint: Color = Profiles.player_color()
-	for spr in [_player.get_node_or_null("Visual/Body"), _player.get_node_or_null("Visual/Head")]:
-		if spr != null:
-			spr.modulate = tint
+	_player.set_team_color(tint)
 	_player.set_controller(PlayerController.new())
 	var cam := CameraRig.new()
 	# Clamp camera to arena bounds (480x270 base resolution)
@@ -91,9 +83,6 @@ func _spawn_player(at: Vector2) -> void:
 	cam.limit_top = 0
 	cam.limit_bottom = Arena.VIEWPORT_H
 	_player.add_child(cam)
-	var hammer := ImpactHammer.new()
-	hammer.data = HAMMER_DATA
-	_player.equip_weapon(hammer)
 	var enforcer := Enforcer.new()
 	enforcer.data = ENFORCER_DATA
 	_player.equip_weapon(enforcer)
@@ -112,30 +101,13 @@ func _spawn_bot(index: int, at: Vector2) -> void:
 	add_child(bot)
 	bot.global_position = at
 	var tint: Color = BOT_TINTS[index % BOT_TINTS.size()]
-	for spr in [bot.get_node_or_null("Visual/Body"), bot.get_node_or_null("Visual/Head")]:
-		if spr != null:
-			spr.modulate = tint
+	bot.set_team_color(tint)
 	var bc := BotController.new()
 	bot.set_controller(bc)
 	bc.set_nav_graph(_nav_graph)
-	var hammer := ImpactHammer.new()
-	hammer.data = HAMMER_DATA
-	bot.equip_weapon(hammer)
 	var enforcer := Enforcer.new()
 	enforcer.data = ENFORCER_DATA
 	bot.equip_weapon(enforcer)
-	var shock := ShockRifle.new()
-	shock.data = SHOCK_DATA
-	bot.equip_weapon(shock)
-	var flak := FlakCannon.new()
-	flak.data = FLAK_DATA
-	bot.equip_weapon(flak)
-	var rocket := RocketLauncher.new()
-	rocket.data = ROCKET_DATA
-	bot.equip_weapon(rocket)
-	var sniper := SniperRifle.new()
-	sniper.data = SNIPER_DATA
-	bot.equip_weapon(sniper)
 	_bots.append(bot)
 
 func _setup_director() -> void:

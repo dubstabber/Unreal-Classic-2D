@@ -4,7 +4,6 @@ extends CanvasLayer
 ## Call `bind(pawn)` to attach.
 
 const WEAPON_ICON_BY_SLOT := {
-	1: &"icon_hammer",
 	2: &"icon_enforcer",
 	3: &"icon_bio",
 	4: &"icon_shock",

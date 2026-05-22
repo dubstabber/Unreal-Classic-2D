@@ -10,12 +10,9 @@ var bot: Pawn = null
 
 # Distance-keyed weapon preference. Closest match wins.
 # Each entry is [max_distance_inclusive, slot]. Order matters — first match wins.
+# Loadout is currently Enforcer-only (slot 2) for all pawns.
 @export var weapon_preference: Array[Vector2] = [
-	Vector2(32.0, 1.0),    # < 32 px: Hammer (melee)
-	Vector2(90.0, 8.0),    # < 90: Flak Cannon
-	Vector2(180.0, 9.0),   # < 180: Rocket Launcher
-	Vector2(340.0, 4.0),   # < 340: Shock Rifle
-	Vector2(1000.0, 0.0),  # otherwise: Sniper Rifle
+	Vector2(1000.0, 2.0),  # always: Enforcer
 ]
 
 var _last_target: Pawn = null

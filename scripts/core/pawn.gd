@@ -25,9 +25,8 @@ var _last_dodge_msec: int = -100000
 @onready var health_component: HealthComponent = $HealthComponent
 @onready var inventory: Inventory = $Inventory
 @onready var _coll: CollisionShape2D = $CollisionShape2D
-@onready var _body_spr: Sprite2D = $Visual/Body
-@onready var _head_spr: Sprite2D = $Visual/Head
-@onready var _arm_spr: Sprite2D = $Visual/Arm
+
+var _rig: CharacterRig = null
 
 func _ready() -> void:
 	add_to_group(&"pawn")
@@ -35,12 +34,29 @@ func _ready() -> void:
 		id = StringName("pawn_%d" % get_instance_id())
 	health_component.damaged.connect(_on_damaged)
 	health_component.died.connect(_on_died)
+	inventory.weapon_changed.connect(_on_weapon_changed)
 	_setup_visual_rig()
 
 func _setup_visual_rig() -> void:
-	if _body_spr: _body_spr.texture = SpriteBaker.get_texture(&"pawn_body")
-	if _head_spr: _head_spr.texture = SpriteBaker.get_texture(&"pawn_head")
-	if _arm_spr:  _arm_spr.texture  = SpriteBaker.get_texture(&"pawn_arm")
+	_rig = CharacterRig.new()
+	_rig.name = "Rig"
+	add_child(_rig)
+
+func _on_weapon_changed(weapon: Node, _prev: Node) -> void:
+	if _rig != null and weapon != null and "data" in weapon:
+		_rig.set_gun_for_weapon(weapon.data)
+
+# ---------- Rig accessors (used by weapons for firing origin) ----------
+
+func aim_pivot_global() -> Vector2:
+	return _rig.aim_pivot_global() if _rig != null else global_position
+
+func muzzle_global() -> Vector2:
+	return _rig.muzzle_global() if _rig != null else global_position
+
+func set_team_color(c: Color) -> void:
+	if _rig != null:
+		_rig.set_team_color(c)
 
 func set_controller(c: PawnController) -> void:
 	if controller != null and controller.is_inside_tree():
@@ -225,18 +241,10 @@ func _try_dodge(dir: int) -> void:
 	# else: airborne with no wall — no dodge (vanilla UT99 behavior)
 
 func _update_facing_and_visuals() -> void:
-	if controller == null:
+	if controller == null or _rig == null:
 		return
+	# Dead-zone keeps the character from flipping when aiming near-vertical.
 	var to_aim: Vector2 = controller.aim_target - global_position
 	if absf(to_aim.x) > 0.5:
 		_facing_x = -1 if to_aim.x < 0.0 else 1
-	if _body_spr: _body_spr.flip_h = _facing_x < 0
-	if _head_spr: _head_spr.flip_h = _facing_x < 0
-	if _arm_spr:
-		var shoulder: Vector2 = _arm_spr.global_position
-		var to_aim_arm: Vector2 = controller.aim_target - shoulder
-		var raw: float = to_aim_arm.angle()
-		var step: float = TAU / 16.0
-		_arm_spr.rotation = roundf(raw / step) * step
-		# Mirror vertically when aiming left so the gun isn't upside-down.
-		_arm_spr.scale.y = -1.0 if absf(raw) > PI * 0.5 else 1.0
+	_rig.update_aim(controller.aim_target, _facing_x)

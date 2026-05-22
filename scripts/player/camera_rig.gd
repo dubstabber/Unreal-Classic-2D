@@ -3,6 +3,9 @@ extends Camera2D
 ## Frame-rate-independent smoothed look-ahead camera with screen shake.
 ## Final position is pixel-snapped so the pixel-art grid never sub-shifts.
 
+## Baseline zoom. The arena is the same size as the screen, so 1× would lock the
+## camera on the whole map; >1 zooms in so the camera can follow + center the player.
+@export var base_zoom: float = 2.0
 @export var look_ahead_weight: float = 0.22
 @export var look_ahead_max: float = 40.0
 @export var smoothing_k: float = 6.0
@@ -13,6 +16,7 @@ var _shake_intensity: float = 0.0
 
 func _ready() -> void:
 	make_current()
+	zoom = Vector2(base_zoom, base_zoom)
 	position_smoothing_enabled = false
 	EventBus.shake_requested.connect(_on_shake_requested)
 	EventBus.zoom_requested.connect(_on_zoom_requested)
@@ -42,6 +46,7 @@ func _on_shake_requested(intensity: float) -> void:
 func _on_zoom_requested(level: float) -> void:
 	# Smoothly tween zoom toward the requested level. Pixel-art look favours snapping —
 	# but instantly snapping causes head-fuck on toggle, so we use a short tween.
-	var target := Vector2(level, level)
+	# `level` is relative to base_zoom: 1.0 = default framing, >1 = scoped in (sniper).
+	var target := Vector2(base_zoom * level, base_zoom * level)
 	var tw := create_tween()
 	tw.tween_property(self, "zoom", target, 0.12)

@@ -7,7 +7,6 @@ const ROCKET_DATA := preload("res://resources/weapons/rocket_launcher.tres")
 const FLAK_DATA := preload("res://resources/weapons/flak_cannon.tres")
 const SNIPER_DATA := preload("res://resources/weapons/sniper_rifle.tres")
 const BIO_DATA := preload("res://resources/weapons/bio_rifle.tres")
-const HAMMER_DATA := preload("res://resources/weapons/impact_hammer.tres")
 
 func _init() -> void:
 	display_name = "Vortex"
@@ -82,7 +81,6 @@ func _place_pickups() -> void:
 	add_weapon_pickup(Vector2(240, 192), FlakCannon, FLAK_DATA)
 	add_weapon_pickup(Vector2(240, 110), ShockRifle, SHOCK_DATA)
 	add_weapon_pickup(Vector2(428, 110), BioRifle, BIO_DATA)
-	add_weapon_pickup(Vector2(40, 240), ImpactHammer, HAMMER_DATA)
 	# Ammo distribution
 	add_ammo(Vector2(80, 240), &"energy", 25)
 	add_ammo(Vector2(400, 240), &"shells", 6)
