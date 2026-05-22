@@ -36,7 +36,8 @@ func add_shake(intensity: float) -> void:
 	_shake_intensity = maxf(_shake_intensity, intensity)
 
 func _on_shake_requested(intensity: float) -> void:
-	add_shake(intensity)
+	# Scale by the player's gameplay preference (0 disables shake entirely).
+	add_shake(intensity * float(Profiles.gameplay().get("screen_shake", 1.0)))
 
 func _on_zoom_requested(level: float) -> void:
 	# Smoothly tween zoom toward the requested level. Pixel-art look favours snapping —

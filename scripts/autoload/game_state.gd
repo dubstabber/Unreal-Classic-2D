@@ -2,9 +2,12 @@ extends Node
 
 enum MatchState { IDLE, COUNTDOWN, ACTIVE, ENDED }
 enum Difficulty { EASY, NORMAL, HARD, INSANE }
+enum GameMode { DEATHMATCH }
 
 var state: MatchState = MatchState.IDLE
 var difficulty: Difficulty = Difficulty.NORMAL
+var game_mode: GameMode = GameMode.DEATHMATCH
+var bot_count: int = 1
 var frag_limit: int = 10
 var time_limit_seconds: float = 0.0
 var scores: Dictionary[StringName, int] = {}
@@ -25,6 +28,11 @@ func difficulty_params() -> Dictionary:
 		Difficulty.INSANE:
 			return {"aim_error_stddev": 2.0, "reaction_time_msec": 70}
 	return {}
+
+func game_mode_name() -> String:
+	match game_mode:
+		GameMode.DEATHMATCH: return "Deathmatch"
+	return "?"
 
 func difficulty_name() -> String:
 	match difficulty:

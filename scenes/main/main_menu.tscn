@@ -1,68 +1,58 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=8 format=3]
 
-[ext_resource type="Script" path="res://scenes/main/main_menu.gd" id="1_menu"]
+[ext_resource type="Theme" path="res://resources/ui/menu_theme.tres" id="1_theme"]
+[ext_resource type="Script" path="res://scenes/main/main_menu.gd" id="2_menu"]
+[ext_resource type="Script" path="res://scripts/ui/menu/instant_action_tab.gd" id="3_instant"]
+[ext_resource type="Script" path="res://scripts/ui/menu/multiplayer_tab.gd" id="4_mp"]
+[ext_resource type="Script" path="res://scripts/ui/menu/options_tab.gd" id="5_options"]
+[ext_resource type="Script" path="res://scripts/ui/menu/player_tab.gd" id="6_player"]
+[ext_resource type="Script" path="res://scripts/ui/menu/exit_tab.gd" id="7_exit"]
 
 [node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-script = ExtResource("1_menu")
+theme = ExtResource("1_theme")
+script = ExtResource("2_menu")
 
 [node name="Bg" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color(0.04, 0.05, 0.08, 1)
 
-[node name="Title" type="Label" parent="."]
+[node name="Tabs" type="TabContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
 anchor_right = 1.0
-offset_top = 40.0
-offset_bottom = 60.0
-text = "UNREAL CLASSIC 2D"
-horizontal_alignment = 1
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 4.0
+offset_right = -4.0
+offset_bottom = -4.0
 
-[node name="Subtitle" type="Label" parent="."]
-anchor_right = 1.0
-offset_top = 62.0
-offset_bottom = 76.0
-text = "deathmatch — single player vs bots"
-horizontal_alignment = 1
+[node name="InstantAction" type="Control" parent="Tabs"]
+layout_mode = 2
+script = ExtResource("3_instant")
 
-[node name="VBox" type="VBoxContainer" parent="."]
-anchor_left = 0.5
-anchor_right = 0.5
-anchor_top = 0.5
-anchor_bottom = 0.5
-offset_left = -80.0
-offset_top = -64.0
-offset_right = 80.0
-offset_bottom = 92.0
-theme_override_constants/separation = 4
+[node name="Multiplayer" type="Control" parent="Tabs"]
+visible = false
+layout_mode = 2
+script = ExtResource("4_mp")
 
-[node name="ArenaLabel" type="Label" parent="VBox"]
-text = "Arena"
-horizontal_alignment = 1
+[node name="Options" type="Control" parent="Tabs"]
+visible = false
+layout_mode = 2
+script = ExtResource("5_options")
 
-[node name="Arena" type="OptionButton" parent="VBox"]
+[node name="Player" type="Control" parent="Tabs"]
+visible = false
+layout_mode = 2
+script = ExtResource("6_player")
 
-[node name="DifficultyLabel" type="Label" parent="VBox"]
-text = "Difficulty"
-horizontal_alignment = 1
-
-[node name="Difficulty" type="OptionButton" parent="VBox"]
-item_count = 4
-selected = 1
-popup/item_0/text = "Easy"
-popup/item_1/text = "Normal"
-popup/item_1/id = 1
-popup/item_2/text = "Hard"
-popup/item_2/id = 2
-popup/item_3/text = "Insane"
-popup/item_3/id = 3
-
-[node name="StartButton" type="Button" parent="VBox"]
-text = "Start Match"
-
-[node name="SandboxButton" type="Button" parent="VBox"]
-text = "Sandbox (dev_test)"
-
-[node name="QuitButton" type="Button" parent="VBox"]
-text = "Quit"
+[node name="Exit" type="Control" parent="Tabs"]
+visible = false
+layout_mode = 2
+script = ExtResource("7_exit")

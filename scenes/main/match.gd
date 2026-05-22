@@ -15,11 +15,17 @@ const BIO_DATA := preload("res://resources/weapons/bio_rifle.tres")
 const ENFORCER_DATA := preload("res://resources/weapons/enforcer.tres")
 const HAMMER_DATA := preload("res://resources/weapons/impact_hammer.tres")
 
+## Distinct tints so each bot is visually distinguishable (cycled by bot index).
+const BOT_TINTS: Array[Color] = [
+	Color(1.00, 0.55, 0.55, 1), Color(0.55, 1.00, 0.60, 1), Color(0.65, 0.70, 1.00, 1),
+	Color(1.00, 0.85, 0.45, 1), Color(0.85, 0.55, 1.00, 1), Color(0.55, 0.95, 1.00, 1),
+]
+
 var _arena: Arena
 var _director: MatchDirector
 var _nav_graph: NavGraph
 var _player: Pawn
-var _bot: Pawn
+var _bots: Array[Pawn] = []
 var _hud: HUD
 
 func _ready() -> void:
@@ -27,7 +33,10 @@ func _ready() -> void:
 	_setup_nav_graph()
 	var spawns: Array[Vector2] = _gather_spawn_points()
 	_spawn_player(spawns[0] if spawns.size() > 0 else Vector2(80, 188))
-	_spawn_bot(spawns[1] if spawns.size() > 1 else Vector2(400, 188))
+	var bot_count: int = maxi(1, GameState.bot_count)
+	for i in bot_count:
+		var at: Vector2 = _bot_spawn(spawns, i)
+		_spawn_bot(i, at)
 	_setup_director()
 	_setup_hud()
 	EventBus.pawn_killed.connect(_on_any_pawn_killed)
@@ -55,11 +64,23 @@ func _gather_spawn_points() -> Array[Vector2]:
 	result.shuffle()
 	return result
 
+## Pick a spawn marker for bot index `i`: skip the player's marker (index 0),
+## cycle through the rest, fall back to a fixed point when none are available.
+func _bot_spawn(spawns: Array[Vector2], i: int) -> Vector2:
+	if spawns.size() <= 1:
+		return Vector2(400, 188)
+	return spawns[1 + (i % (spawns.size() - 1))]
+
 func _spawn_player(at: Vector2) -> void:
 	_player = PAWN_SCENE.instantiate()
 	_player.id = &"player"
-	_player.display_name = "Player"
+	_player.display_name = Profiles.player_name()
 	add_child(_player)
+	# Sprites are created in Pawn._ready() on tree entry, so tint after add_child.
+	var tint: Color = Profiles.player_color()
+	for spr in [_player.get_node_or_null("Visual/Body"), _player.get_node_or_null("Visual/Head")]:
+		if spr != null:
+			spr.modulate = tint
 	_player.set_controller(PlayerController.new())
 	var cam := CameraRig.new()
 	# Clamp camera to arena bounds (480x270 base resolution)
@@ -76,40 +97,43 @@ func _spawn_player(at: Vector2) -> void:
 	_player.equip_weapon(enforcer)
 	_player.global_position = at
 
-func _spawn_bot(at: Vector2) -> void:
-	_bot = PAWN_SCENE.instantiate()
-	_bot.id = &"opponent"
-	_bot.display_name = "Bot"
-	add_child(_bot)
-	_bot.global_position = at
-	for spr in [_bot.get_node_or_null("Visual/Body"), _bot.get_node_or_null("Visual/Head")]:
+func _spawn_bot(index: int, at: Vector2) -> void:
+	var bot: Pawn = PAWN_SCENE.instantiate()
+	bot.id = StringName("bot_%d" % index)
+	bot.display_name = "Bot %d" % (index + 1)
+	add_child(bot)
+	bot.global_position = at
+	var tint: Color = BOT_TINTS[index % BOT_TINTS.size()]
+	for spr in [bot.get_node_or_null("Visual/Body"), bot.get_node_or_null("Visual/Head")]:
 		if spr != null:
-			spr.modulate = Color(1.0, 0.55, 0.55, 1.0)
+			spr.modulate = tint
 	var bc := BotController.new()
-	_bot.set_controller(bc)
+	bot.set_controller(bc)
 	bc.set_nav_graph(_nav_graph)
 	var hammer := ImpactHammer.new()
 	hammer.data = HAMMER_DATA
-	_bot.equip_weapon(hammer)
+	bot.equip_weapon(hammer)
 	var enforcer := Enforcer.new()
 	enforcer.data = ENFORCER_DATA
-	_bot.equip_weapon(enforcer)
+	bot.equip_weapon(enforcer)
 	var shock := ShockRifle.new()
 	shock.data = SHOCK_DATA
-	_bot.equip_weapon(shock)
+	bot.equip_weapon(shock)
 	var flak := FlakCannon.new()
 	flak.data = FLAK_DATA
-	_bot.equip_weapon(flak)
+	bot.equip_weapon(flak)
 	var rocket := RocketLauncher.new()
 	rocket.data = ROCKET_DATA
-	_bot.equip_weapon(rocket)
+	bot.equip_weapon(rocket)
 	var sniper := SniperRifle.new()
 	sniper.data = SNIPER_DATA
-	_bot.equip_weapon(sniper)
+	bot.equip_weapon(sniper)
+	_bots.append(bot)
 
 func _setup_director() -> void:
 	_director = MatchDirector.new()
 	_director.frag_limit = GameState.frag_limit if GameState.frag_limit > 0 else 10
+	_director.time_limit_seconds = GameState.time_limit_seconds
 	_director.respawn_delay = 1.5
 	add_child(_director)
 	_director.auto_register_starts(self)
@@ -120,7 +144,7 @@ func _setup_hud() -> void:
 	_hud.bind(_player)
 
 func _on_any_pawn_killed(victim: Pawn, killer: Node) -> void:
-	if killer == _player and victim != _player:
+	if killer == _player and victim != _player and Profiles.gameplay().get("damage_numbers", true):
 		FloatingText.spawn(self, _player.global_position + Vector2(0, -18), "+1",
 			Color(0.4, 0.95, 0.5, 1))
 
