@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/pickups/ammo_pickup.gd" id="1_ammo"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ammo"]
+size = Vector2(10, 8)
+
+[node name="AmmoPickup" type="Area2D"]
+collision_layer = 8
+collision_mask = 2
+script = ExtResource("1_ammo")
+respawn_seconds = 30.0
+pickup_id = &"ammo_box"
+sprite_name = &"pickup_ammo"
+ammo_type = &"bullets"
+amount = 20
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_ammo")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]

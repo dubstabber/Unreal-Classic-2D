@@ -1,0 +1,68 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/main/main_menu.gd" id="1_menu"]
+
+[node name="MainMenu" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_menu")
+
+[node name="Bg" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.04, 0.05, 0.08, 1)
+
+[node name="Title" type="Label" parent="."]
+anchor_right = 1.0
+offset_top = 40.0
+offset_bottom = 60.0
+text = "UNREAL CLASSIC 2D"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="."]
+anchor_right = 1.0
+offset_top = 62.0
+offset_bottom = 76.0
+text = "deathmatch — single player vs bots"
+horizontal_alignment = 1
+
+[node name="VBox" type="VBoxContainer" parent="."]
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = -80.0
+offset_top = -64.0
+offset_right = 80.0
+offset_bottom = 92.0
+theme_override_constants/separation = 4
+
+[node name="ArenaLabel" type="Label" parent="VBox"]
+text = "Arena"
+horizontal_alignment = 1
+
+[node name="Arena" type="OptionButton" parent="VBox"]
+
+[node name="DifficultyLabel" type="Label" parent="VBox"]
+text = "Difficulty"
+horizontal_alignment = 1
+
+[node name="Difficulty" type="OptionButton" parent="VBox"]
+item_count = 4
+selected = 1
+popup/item_0/text = "Easy"
+popup/item_1/text = "Normal"
+popup/item_1/id = 1
+popup/item_2/text = "Hard"
+popup/item_2/id = 2
+popup/item_3/text = "Insane"
+popup/item_3/id = 3
+
+[node name="StartButton" type="Button" parent="VBox"]
+text = "Start Match"
+
+[node name="SandboxButton" type="Button" parent="VBox"]
+text = "Sandbox (dev_test)"
+
+[node name="QuitButton" type="Button" parent="VBox"]
+text = "Quit"

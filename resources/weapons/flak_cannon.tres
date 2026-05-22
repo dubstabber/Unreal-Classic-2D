@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/weapon_data.gd" id="1_data"]
+
+[resource]
+script = ExtResource("1_data")
+id = &"flak_cannon"
+display_name = "Flak Cannon"
+slot = 8
+ammo_type = &"shells"
+primary_fire_rate = 0.95
+alt_fire_rate = 1.05
+primary_damage = 13.0
+alt_damage = 70.0
+ammo_per_shot_primary = 1
+ammo_per_shot_alt = 1
+base_ammo_on_pickup = 10
+max_ammo = 50
+muzzle_offset_local = Vector2(7, 0)
+screen_shake = 5.0
+description = "Primary: cone of 9 bouncing shards (close-range shotgun). Alt: arcing grenade that explodes into shards on impact."

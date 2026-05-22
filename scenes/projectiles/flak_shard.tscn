@@ -1,0 +1,22 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/projectiles/flak_shard.gd" id="1_shard"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_shard"]
+size = Vector2(3, 2)
+
+[node name="FlakShard" type="Area2D"]
+collision_layer = 4
+collision_mask = 3
+script = ExtResource("1_shard")
+speed = 360.0
+lifetime = 1.5
+damage = 14.0
+damage_type = &"projectile"
+weapon_id = &"flak_cannon.primary"
+knockback_strength = 50.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_shard")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]

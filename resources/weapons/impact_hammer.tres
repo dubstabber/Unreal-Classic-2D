@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/weapon_data.gd" id="1_data"]
+
+[resource]
+script = ExtResource("1_data")
+id = &"impact_hammer"
+display_name = "Impact Hammer"
+slot = 1
+ammo_type = &""
+primary_fire_rate = 0.45
+alt_fire_rate = 0.9
+primary_damage = 90.0
+alt_damage = 8.0
+ammo_per_shot_primary = 0
+ammo_per_shot_alt = 0
+base_ammo_on_pickup = 0
+max_ammo = 0
+muzzle_offset_local = Vector2(7, 0)
+screen_shake = 4.0
+description = "Charge-and-release melee. Hold primary to power up, release for a radial impact burst (more damage + knockback at full charge). Alt = hammer-jump (push off any direction)."

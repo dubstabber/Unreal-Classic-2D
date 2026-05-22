@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/weapon_data.gd" id="1_data"]
+
+[resource]
+script = ExtResource("1_data")
+id = &"bio_rifle"
+display_name = "Bio Rifle"
+slot = 3
+ammo_type = &"biosludge"
+primary_fire_rate = 0.5
+alt_fire_rate = 0.6
+primary_damage = 22.0
+alt_damage = 75.0
+ammo_per_shot_primary = 1
+ammo_per_shot_alt = 1
+base_ammo_on_pickup = 25
+max_ammo = 100
+muzzle_offset_local = Vector2(6, 0)
+screen_shake = 0.6
+description = "Lobbed green goo. Primary fires a small glob that becomes a damaging pool on impact. Alt charges; release for a bigger glob that splits into multiple pools."

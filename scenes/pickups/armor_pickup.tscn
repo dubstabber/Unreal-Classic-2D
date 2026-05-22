@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/pickups/armor_pickup.gd" id="1_armor"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_armor"]
+size = Vector2(10, 12)
+
+[node name="ArmorPickup" type="Area2D"]
+collision_layer = 8
+collision_mask = 2
+script = ExtResource("1_armor")
+respawn_seconds = 60.0
+pickup_id = &"armor_heavy"
+sprite_name = &"pickup_armor"
+amount = 100.0
+cap = 150.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_armor")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/weapon_data.gd" id="1_data"]
+
+[resource]
+script = ExtResource("1_data")
+id = &"shock_rifle"
+display_name = "Shock Rifle"
+slot = 4
+ammo_type = &"energy"
+primary_fire_rate = 0.55
+alt_fire_rate = 0.6
+primary_damage = 40.0
+alt_damage = 45.0
+ammo_per_shot_primary = 1
+ammo_per_shot_alt = 1
+base_ammo_on_pickup = 50
+max_ammo = 200
+muzzle_offset_local = Vector2(7, 0)
+screen_shake = 0.3
+description = "Hitscan beam (primary) + slow plasma orb (alt). Shoot an in-flight orb with the beam for a devastating shock combo."

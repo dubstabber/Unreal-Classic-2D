@@ -1,0 +1,47 @@
+# Godot generated files
+.godot/
+.import/
+*.translation
+
+# Godot export credentials and local platform build trees
+export_credentials.cfg
+/android/
+/.android/
+/.ios/
+
+# Exported builds and packages
+/build/
+/builds/
+/dist/
+/export/
+/exports/
+/*.apk
+/*.aab
+/*.ipa
+/*.pck
+/*.zip
+
+# Godot C# generated files
+.mono/
+
+# Local editor and tool state
+.agents/
+.codex/
+.vscode/
+.idea/
+*.sublime-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~

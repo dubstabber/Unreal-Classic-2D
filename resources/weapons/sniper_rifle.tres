@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/weapon_data.gd" id="1_data"]
+
+[resource]
+script = ExtResource("1_data")
+id = &"sniper_rifle"
+display_name = "Sniper Rifle"
+slot = 0
+ammo_type = &"sniper"
+primary_fire_rate = 1.4
+alt_fire_rate = 0.4
+primary_damage = 65.0
+alt_damage = 0.0
+ammo_per_shot_primary = 1
+ammo_per_shot_alt = 0
+base_ammo_on_pickup = 10
+max_ammo = 40
+muzzle_offset_local = Vector2(7, 0)
+screen_shake = 2.5
+description = "High-damage hitscan. Headshots deal 2x damage. Alt toggles zoom for long-range precision."

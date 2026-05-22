@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/weapon_data.gd" id="1_data"]
+
+[resource]
+script = ExtResource("1_data")
+id = &"rocket_launcher"
+display_name = "Rocket Launcher"
+slot = 9
+ammo_type = &"rockets"
+primary_fire_rate = 0.95
+alt_fire_rate = 1.2
+primary_damage = 50.0
+alt_damage = 50.0
+ammo_per_shot_primary = 1
+ammo_per_shot_alt = 1
+base_ammo_on_pickup = 12
+max_ammo = 60
+muzzle_offset_local = Vector2(8, 0)
+screen_shake = 8.0
+description = "Iconic rocket explosion. Primary fires a single rocket; alt-hold loads up to 3 rockets and releases them as a spread. Falloff damage + knockback. Rocket-jump works."

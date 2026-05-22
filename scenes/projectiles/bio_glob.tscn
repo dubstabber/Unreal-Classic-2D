@@ -1,0 +1,22 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/projectiles/bio_glob.gd" id="1_glob"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_glob"]
+radius = 3.0
+
+[node name="BioGlob" type="Area2D"]
+collision_layer = 4
+collision_mask = 3
+script = ExtResource("1_glob")
+speed = 220.0
+lifetime = 3.0
+damage = 22.0
+damage_type = &"bio"
+weapon_id = &"bio_rifle"
+knockback_strength = 40.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_glob")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
