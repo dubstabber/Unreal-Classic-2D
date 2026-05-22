@@ -3,8 +3,8 @@ extends Camera2D
 ## Frame-rate-independent smoothed look-ahead camera with screen shake.
 ## Final position is pixel-snapped so the pixel-art grid never sub-shifts.
 
-@export var look_ahead_weight: float = 0.45
-@export var look_ahead_max: float = 64.0
+@export var look_ahead_weight: float = 0.22
+@export var look_ahead_max: float = 40.0
 @export var smoothing_k: float = 6.0
 @export var shake_decay: float = 22.0
 

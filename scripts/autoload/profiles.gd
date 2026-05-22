@@ -301,6 +301,23 @@ func set_integer_scaling(on: bool) -> void:
 	active.options.video.integer_scaling = on
 	_apply_video()
 
+## Front-end scenes call this so Control/UI rasterizes at the real window
+## resolution (crisp text at any window size) instead of the 480x270 framebuffer.
+func use_ui_presentation() -> void:
+	if DisplayServer.get_name() == "headless":
+		return
+	var w := get_window()
+	if w != null:
+		w.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+
+## Gameplay scenes call this to keep the 480x270 pixel-art look (the project default).
+func use_game_presentation() -> void:
+	if DisplayServer.get_name() == "headless":
+		return
+	var w := get_window()
+	if w != null:
+		w.content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
+
 func _apply_video() -> void:
 	if DisplayServer.get_name() == "headless":
 		return

@@ -4,6 +4,8 @@ const MATCH_PATH := "res://scenes/main/match.tscn"
 const MENU_PATH := "res://scenes/main/main_menu.tscn"
 
 func _ready() -> void:
+	Profiles.use_ui_presentation()
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	$VBox/PlayAgain.pressed.connect(_on_play_again)
 	$VBox/Menu.pressed.connect(_on_menu)
 	$VBox/Quit.pressed.connect(_on_quit)

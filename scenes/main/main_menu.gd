@@ -3,6 +3,8 @@ extends Control
 ## child Control's own script. Multiplayer is present but disabled.
 
 func _ready() -> void:
+	Profiles.use_ui_presentation()
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	var tabs: TabContainer = $Tabs
 	tabs.set_tab_title(0, "Instant Action")
 	tabs.set_tab_title(1, "Multiplayer")

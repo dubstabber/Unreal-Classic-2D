@@ -35,6 +35,8 @@ var _director: MatchDirector
 var _nav_graph: NavGraph
 
 func _ready() -> void:
+	Profiles.use_game_presentation()
+	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 	_spawn_title()
 	_build_arena()
 	_spawn_test_pawn()

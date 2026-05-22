@@ -18,8 +18,8 @@ extends Resource
 # Gravity / jump
 @export var gravity: float = 900.0
 @export var max_fall_speed: float = 700.0
-@export var jump_impulse: float = 280.0
-@export var jump_hold_gravity_scale: float = 0.45  # while jump held, gravity is scaled by this until apex
+@export var jump_impulse: float = 230.0
+@export var jump_hold_gravity_scale: float = 0.55  # while jump held, gravity is scaled by this until apex
 @export var coyote_seconds: float = 0.10
 @export var jump_buffer_seconds: float = 0.12
 

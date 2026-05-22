@@ -29,11 +29,13 @@ var _bots: Array[Pawn] = []
 var _hud: HUD
 
 func _ready() -> void:
+	Profiles.use_game_presentation()
+	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 	_load_arena()
 	_setup_nav_graph()
 	var spawns: Array[Vector2] = _gather_spawn_points()
 	_spawn_player(spawns[0] if spawns.size() > 0 else Vector2(80, 188))
-	var bot_count: int = maxi(1, GameState.bot_count)
+	var bot_count: int = maxi(0, GameState.bot_count)
 	for i in bot_count:
 		var at: Vector2 = _bot_spawn(spawns, i)
 		_spawn_bot(i, at)
@@ -96,6 +98,12 @@ func _spawn_player(at: Vector2) -> void:
 	enforcer.data = ENFORCER_DATA
 	_player.equip_weapon(enforcer)
 	_player.global_position = at
+	# "This is you" arrow above the local player on spawn + each respawn.
+	var indicator := SpawnIndicator.new()
+	indicator.color = tint
+	_player.add_child(indicator)
+	indicator.show_for(2.5)
+	_player.respawned.connect(func() -> void: indicator.show_for(2.5))
 
 func _spawn_bot(index: int, at: Vector2) -> void:
 	var bot: Pawn = PAWN_SCENE.instantiate()

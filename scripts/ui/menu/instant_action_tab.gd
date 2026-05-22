@@ -40,9 +40,9 @@ func _ready() -> void:
 	_row(grid, "Map", map)
 
 	var bots := SpinBox.new()
-	bots.min_value = 1
+	bots.min_value = 0
 	bots.max_value = 6
-	bots.value = clampi(GameState.bot_count, 1, 6)
+	bots.value = clampi(GameState.bot_count, 0, 6)
 	bots.value_changed.connect(func(v: float) -> void:
 		GameState.bot_count = int(v))
 	_row(grid, "Bots", bots)
